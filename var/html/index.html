@@ -12,6 +12,7 @@
 			justify-content: flex-end;
 			flex-direction: column;
 			overflow: unset;
+			scroll-behavior: smooth;
 
 			margin: 12px;
 			margin-top: 0px;
@@ -90,6 +91,7 @@
 </head>
 <body style="text-align:center;">
 	<script>
+		let rollCount = 0;
 		function newRoll(event) {
 			let dmgPrefix = "Damage: "
 			if (event.critical) {
@@ -128,12 +130,15 @@
 
 			let ava = $("<div>", {"class": "roll-avatar"}).append(avaImg)
 			
-			let roll = $("<div>", {"class": "roll"}).append(ava, meta)
+			let id = "roll-" + rollCount
+			rollCount++;
+			let roll = $("<div>", {id: id, "class": "roll"}).append(ava, meta)
 			if (event.color) {
 				roll.css({"border-left-color": event.color})
 			}
 
 			$("#rolls").append(roll)
+			roll.delay(30000).fadeOut(1500)
 		}
 
 		let socket = new WebSocket("ws://localhost:8080/ws")

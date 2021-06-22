@@ -115,6 +115,10 @@ func rollFromMessage(m *discordgo.Message) *Roll {
 	}
 
 	roll := rollFromTokens(tokens)
+	if roll == nil {
+		return nil
+	}
+
 	roll.ID = m.ID
 	roll.Avatar = avatar
 	roll.Color = fmt.Sprintf("#%06x", color)
@@ -194,6 +198,8 @@ func rollFromTokens(tokens map[string]string) *Roll {
 		roll.Kind = tokens["healSpell"]
 		roll.DamageDice = tokens["miscDice"]
 		roll.DamageTotal = tokens["misc"]
+	} else {
+		return nil
 	}
 
 	roll.Dice = dieMinMaxer.ReplaceAllStringFunc(roll.Dice, dieMinMax)
