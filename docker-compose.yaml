@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  obsvrae:
+    build:
+      context: .
+      dockerfile: cmd/obsvraeously/Dockerfile
+    image: rleszilm/obsvrae
+    environment:
+      OBSVRAE_DISCORD: ${OBSVRAE_DISCORD}
+      OBSVRAE_LOG_LEVEL: trace
+
+
+  obsvrae-static:
+    build:
+      context: .
+      dockerfile: _ops/docker/nginx-static/Dockerfile
+      args:
+        HTML_SRC: var/html
+        HTML_DST: "static"
+    image: rleszilm/obsvrae-static
+
+  obsvrae-proxy:
+    build:
+      context: .
+      dockerfile: _ops/docker/nginx-router/Dockerfile
+      args:
+        CONFIG: _ops/nginx/proxy.conf
+    image: rleszilm/obsvrae-proxy
+    ports:
+      - 8080:80

@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.0/showdown.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<style>
+		div.rolls {
+			width: 600px;
+			height: 420px;
+			
+			display: flex;
+			justify-content: flex-end;
+			flex-direction: column;
+			overflow: unset;
+
+			margin: 12px;
+			margin-top: 0px;
+
+			vertical-align: bottom;
+		}
+
+		div.roll {            
+			width: 600px;
+			height: 72px;
+
+			display: inline-block;
+			
+			background-color: rgba(30,33,36,.90);
+			
+			border-radius: 12px;
+			border-left-width: 5px;
+			border-left-style: solid;
+			border-left-color: rgba(30,33,36,.90);
+
+			margin-top: 12px;
+
+			text-align: left;
+			text-shadow: rgba(0, 0, 0, 1);
+		}
+
+		div.roll-avatar {
+			width: 62px;
+			height: 62px;
+
+			float: left;
+			
+			padding: 5px;
+		}
+
+		div.roll-meta {
+			height: 64px;
+
+			float: left;
+			
+			padding: 4px;
+		}
+
+		div.roll-meta-desc {
+			color: rgba(248, 248, 248, 1);
+
+			font-family: sans-serif;
+			font-size: 20px;
+			font-weight: 700;
+		}
+
+		div.roll-meta-line {
+			color: rgba(210, 210, 210, 1);
+
+			font-family: sans-serif;
+			font-size: 18px;
+			font-weight: 400;
+		}
+
+		img.roll-avatar {
+			height: 62px;
+			width: 62px;
+
+			border-radius: 16px;
+		}
+
+		span.die-dropped {
+			text-decoration: line-through;
+			text-decoration-thickness: 2px;
+		}
+
+		span.die-minmaxed {
+			font-weight: 700;
+		}
+	</style>
+</head>
+<body style="text-align:center;">
+	<script>
+		function newRoll(event) {
+			let dmgPrefix = "Damage: "
+			if (event.critical) {
+				dmgPrefix = "Damage (<b>CRIT!</b>): "
+			}
+			
+			let metaDesc = $("<div>", {"class": "roll-meta-desc"}).append(event.description)
+				
+			let metaDice = $("<div>", {"class": "roll-meta-line"})
+			let metaTotal = $("<div>", {"class": "roll-meta-line"})
+			
+			if (event.roll == "action") {
+				if (event.update) {
+					metaDice.append(event.kind + ": " + event.damageDice)
+					metaTotal.append(dmgPrefix + event.damageTotal)
+				} else if (event.damageDice) {
+					metaDice.append(event.kind + ": " + event.damageDice)
+					metaTotal.append(dmgPrefix + event.damageTotal)
+				} else {
+					metaDice.append(event.kind + ": " + event.hitDice)
+					metaTotal.append("To Hit: " + event.hitTotal)
+				}
+			} else {
+				metaDice.append(event.kind + ": " + event.dice)
+				metaTotal.append("Total: " + event.total)
+			}
+
+			let meta = $("<div>", {"class": "roll-meta"}).append(metaDesc, metaDice, metaTotal)
+
+			let avaImg = $("<img>", {"class": "roll-avatar"})
+			if (event.avatar) {
+				avaImg.attr("src", event.avatar)
+			} else {
+				avaImg.attr("src", "d20.png")
+			}
+
+			let ava = $("<div>", {"class": "roll-avatar"}).append(avaImg)
+			
+			let roll = $("<div>", {"class": "roll"}).append(ava, meta)
+			if (event.color) {
+				roll.css({"border-left-color": event.color})
+			}
+
+			$("#rolls").append(roll)
+		}
+
+		let socket = new WebSocket("ws://localhost:8080/ws")
+		socket.onmessage = function(event) {
+			newRoll(JSON.parse(event.data))
+		}
+
+		socket.onopen = function(event) {
+		}
+
+		socket.onclose = function(event) {
+			socket = new WebSocket("ws://localhost:8080/ws")
+		}
+	</script>
+	<div id="rolls" class="rolls"></div>
+</body>
+</html>
