@@ -64,6 +64,10 @@ func NewCreateHandler(ch chan<- *Roll) func(s *discordgo.Session, m *discordgo.M
 			return
 		}
 
+		if m.Author.String() != "Avrae#6944" {
+			return
+		}
+
 		if roll := rollFromMessage(m.Message); roll != nil {
 			ch <- roll
 		}
@@ -73,6 +77,10 @@ func NewCreateHandler(ch chan<- *Roll) func(s *discordgo.Session, m *discordgo.M
 func NewUpdateHandler(ch chan<- *Roll) func(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	return func(s *discordgo.Session, m *discordgo.MessageUpdate) {
 		if m.Author.ID == s.State.User.ID {
+			return
+		}
+
+		if m.Author.String() != "Avrae#6944" {
 			return
 		}
 
